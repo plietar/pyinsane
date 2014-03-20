@@ -1,0 +1,45 @@
+Source: python-pyinsane
+Maintainer: Ross Vandegrift <ross@kallisti.us>
+Section: python
+Priority: optional
+Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 9), dh-python, python-all (>= 2.7), python-setuptools, python3-all, python3-setuptools, libsane-dev
+Homepage: https://github.com/jflesch/pyinsane
+Vcs-Browser: https://github.com/rvandegrift/pyinsane/tree/debian
+Vcs-Git: https://github.com/rvandegrift/pyinsane.git -b debian
+X-Python-Version: >= 2.7
+X-Python3-Version: >= 3.2
+
+Package: python-pyinsane
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}
+Description: Python implementation of the Sane API (Python 2)
+ Python implementation of the Sane API (using ctypes) and abstration layer.
+ .
+ The code is divided in 3 layers:
+  - rawapi : Ctypes binding to the raw Sane API
+  - abstract : An Object-Oriented layer that simplifies the use of the Sane API
+    and try to avoid possible misuse of the Sane API.  When scanning, it also
+    takes care of returning a Pillow image.
+  - abstract_th : The Sane API is not thread-safe and cannot be used in a
+    multi-threaded environment easily. This layer solves this problem by using
+    a fully dedicated thread.
+ .
+ This is the Python 2 version of the package.
+
+Package: python3-pyinsane
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}
+Description: Python implementation of the Sane API (Python 3)
+ Python implementation of the Sane API (using ctypes) and abstration layer.
+ .
+ The code is divided in 3 layers:
+  - rawapi : Ctypes binding to the raw Sane API
+  - abstract : An Object-Oriented layer that simplifies the use of the Sane API
+    and try to avoid possible misuse of the Sane API.  When scanning, it also
+    takes care of returning a Pillow image.
+  - abstract_th : The Sane API is not thread-safe and cannot be used in a
+    multi-threaded environment easily. This layer solves this problem by using
+    a fully dedicated thread.
+ .
+ This is the Python 3 version of the package.

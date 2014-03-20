@@ -1,0 +1,8 @@
+Files: *
+Copyright: 2012 Jerome Flesch
+License: GPL-3+
+
+PyInsane is released under the GPL v3+.
+
+On Debian systems, the complete text of the GNU General Public License
+can be found in the `/usr/share/common-licenses/GPL' file.
