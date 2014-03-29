@@ -1,0 +1,110 @@
+From: Ross Vandegrift <ross@kallisti.us>
+Date: Thu, 27 Mar 2014 00:38:03 +0000
+Subject: Tests should create virtual device instead of fail.
+
+sane-test(5) provides a virtual device backend, designed for testing
+software that interacts with SANE.  If PyInsane tests fail to find any
+devices, we should create a test device instead.
+
+Signed-off-by: Ross Vandegrift <ross@kallisti.us>
+---
+ run_tests.py            |  1 -
+ tests/tests_abstract.py |  5 +++++
+ tests/tests_rawapi.py   | 21 ++++++++++++++++-----
+ 3 files changed, 21 insertions(+), 6 deletions(-)
+
+diff --git a/run_tests.py b/run_tests.py
+index a84f3bc..bf427e7 100755
+--- a/run_tests.py
++++ b/run_tests.py
+@@ -10,7 +10,6 @@ from src import abstract
+ from src import abstract_th
+ 
+ if __name__ == '__main__':
+-    print("Don't forget to turn at least one scanner on !")
+     #print("---")
+     #print("=== RawAPI: ===")
+     #unittest.TextTestRunner(verbosity=3).run(
+diff --git a/tests/tests_abstract.py b/tests/tests_abstract.py
+index 51fa6ff..7d3890c 100644
+--- a/tests/tests_abstract.py
++++ b/tests/tests_abstract.py
+@@ -15,6 +15,11 @@ class TestSaneGetDevices(unittest.TestCase):
+ 
+     def test_get_devices(self):
+         devices = self.module.get_devices()
++        if len(devices) == 0:
++            # if there are no devices found, create a virtual device.
++            # see sane-test(5) and /etc/sane.d/test.conf
++            self.module.Scanner("test")._open()
++            devices = self.module.get_devices()
+         self.assertTrue(len(devices) > 0)
+ 
+     def tearDown(self):
+diff --git a/tests/tests_rawapi.py b/tests/tests_rawapi.py
+index 207fc92..69fc6d2 100644
+--- a/tests/tests_rawapi.py
++++ b/tests/tests_rawapi.py
+@@ -6,6 +6,17 @@ import unittest
+ import rawapi
+ 
+ 
++def get_test_devices():
++    '''Return SANE devices, perhaps after creating a test device.'''
++    devices = rawapi.sane_get_devices()
++    if len(devices) == 0:
++        # if there are no devices found, create a virtual device.
++        # see sane-test(5) and /etc/sane.d/test.conf
++        rawapi.sane_close(rawapi.sane_open("test"))
++        devices = rawapi.sane_get_devices()
++    return devices
++
++
+ class TestSaneInit(unittest.TestCase):
+     def setUp(self):
+         pass
+@@ -23,7 +34,7 @@ class TestSaneGetDevices(unittest.TestCase):
+         rawapi.sane_init()
+ 
+     def test_get_devices(self):
+-        devices = rawapi.sane_get_devices()
++        devices = get_test_devices()
+         self.assertTrue(len(devices) > 0)
+ 
+     def tearDown(self):
+@@ -33,7 +44,7 @@ class TestSaneGetDevices(unittest.TestCase):
+ class TestSaneOpen(unittest.TestCase):
+     def setUp(self):
+         rawapi.sane_init()
+-        devices = rawapi.sane_get_devices()
++        devices = get_test_devices()
+         self.assertTrue(len(devices) > 0)
+         self.dev_name = devices[0].name
+ 
+@@ -51,7 +62,7 @@ class TestSaneOpen(unittest.TestCase):
+ class TestSaneGetOptionDescriptor(unittest.TestCase):
+     def setUp(self):
+         rawapi.sane_init()
+-        devices = rawapi.sane_get_devices()
++        devices = get_test_devices()
+         self.assertTrue(len(devices) > 0)
+         dev_name = devices[0].name
+         self.dev_handle = rawapi.sane_open(dev_name)
+@@ -85,7 +96,7 @@ class TestSaneGetOptionDescriptor(unittest.TestCase):
+ class TestSaneControlOption(unittest.TestCase):
+     def setUp(self):
+         rawapi.sane_init()
+-        devices = rawapi.sane_get_devices()
++        devices = get_test_devices()
+         self.assertTrue(len(devices) > 0)
+         dev_name = devices[0].name
+         self.dev_handle = rawapi.sane_open(dev_name)
+@@ -122,7 +133,7 @@ class TestSaneControlOption(unittest.TestCase):
+ class TestSaneScan(unittest.TestCase):
+     def setUp(self):
+         rawapi.sane_init()
+-        devices = rawapi.sane_get_devices()
++        devices = get_test_devices()
+         self.assertTrue(len(devices) > 0)
+         dev_name = devices[0].name
+         self.dev_handle = rawapi.sane_open(dev_name)

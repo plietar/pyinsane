@@ -1,0 +1,163 @@
+From: Ross Vandegrift <ross@kallisti.us>
+Date: Thu, 27 Mar 2014 00:42:12 +0000
+Subject: If a scanner can't perform a function, skip the test.
+
+Some of the tests assume specific things about the capabilities of
+the devices currently active.  Running tests against sane-test and an
+fi-4120C2 revealed these don't always hold.
+
+Signed-off-by: Ross Vandegrift <ross@kallisti.us>
+---
+ tests/tests_abstract.py | 59 ++++++++++++++++++++++++++++++++-----------------
+ tests/tests_rawapi.py   | 10 +++++++--
+ 2 files changed, 47 insertions(+), 22 deletions(-)
+
+diff --git a/tests/tests_abstract.py b/tests/tests_abstract.py
+index 7d3890c..580cc19 100644
+--- a/tests/tests_abstract.py
++++ b/tests/tests_abstract.py
+@@ -60,7 +60,6 @@ class TestSaneOptions(unittest.TestCase):
+             del(dev)
+         del(self.devices)
+ 
+-
+ class TestSaneScan(unittest.TestCase):
+     def set_module(self, module):
+         self.module = module
+@@ -71,8 +70,10 @@ class TestSaneScan(unittest.TestCase):
+         self.dev = devices[0]
+ 
+     def test_simple_scan_lineart(self):
+-        self.assertTrue("Lineart" in self.dev.options['mode'].constraint)
+-        self.dev.options['mode'].value = "Lineart"
++        try:
++            self.dev.options['mode'].value = "Lineart"
++        except self.module.SaneException:
++            self.skipTest("scanner does not support required option")
+         scan_session = self.dev.scan(multiple=False)
+         try:
+             assert(scan_session.scan is not None)
+@@ -84,8 +85,10 @@ class TestSaneScan(unittest.TestCase):
+         self.assertNotEqual(img, None)
+ 
+     def test_simple_scan_gray(self):
+-        self.assertTrue("Gray" in self.dev.options['mode'].constraint)
+-        self.dev.options['mode'].value = "Gray"
++        try:
++            self.dev.options['mode'].value = "Gray"
++        except self.module.SaneException:
++            self.skipTest("scanner does not support required option")
+         scan_session = self.dev.scan(multiple=False)
+         try:
+             while True:
+@@ -96,8 +99,10 @@ class TestSaneScan(unittest.TestCase):
+         self.assertNotEqual(img, None)
+ 
+     def test_simple_scan_color(self):
+-        self.assertTrue("Color" in self.dev.options['mode'].constraint)
+-        self.dev.options['mode'].value = "Color"
++        try:
++            self.dev.options['mode'].value = "Color"
++        except self.module.SaneException:
++            self.skipTest("scanner does not support required option")
+         scan_session = self.dev.scan(multiple=False)
+         try:
+             while True:
+@@ -108,9 +113,11 @@ class TestSaneScan(unittest.TestCase):
+         self.assertNotEqual(img, None)
+ 
+     def test_multi_scan_on_flatbed(self):
+-        self.assertTrue("Flatbed" in self.dev.options['source'].constraint)
+-        self.dev.options['source'].value = "Flatbed"
+-        self.dev.options['mode'].value = "Color"
++        try:
++            self.dev.options['source'].value = "Flatbed"
++            self.dev.options['mode'].value = "Color"
++        except self.module.SaneException:
++            self.skipTest("scanner does not support required option")
+         scan_session = self.dev.scan(multiple=True)
+         try:
+             while True:
+@@ -121,9 +128,17 @@ class TestSaneScan(unittest.TestCase):
+         self.assertNotEqual(scan_session.images[0], None)
+ 
+     def test_multi_scan_on_adf(self):
+-        self.assertTrue("ADF" in self.dev.options['source'].constraint)
+-        self.dev.options['source'].value = "ADF"
+-        self.dev.options['mode'].value = "Color"
++        # sane-test uses 'Automatic Document Feeder' instead of ADF
++        try:
++            if "ADF" in self.dev.options['source'].constraint:
++                self.dev.options['source'].value = "ADF"
++                pages = 0
++            elif "Automatic Document Feeder" in self.dev.options['source'].constraint:
++                self.dev.options['source'].value = "Automatic Document Feeder"
++                pages = 10 # sane-test scans give us 10 pages
++            self.dev.options['mode'].value = "Color"
++        except self.module.SaneException:
++            self.skipTest("scanner does not support required option")
+         scan_session = self.dev.scan(multiple=True)
+         try:
+             while True:
+@@ -133,12 +148,14 @@ class TestSaneScan(unittest.TestCase):
+                     pass
+         except StopIteration:
+             pass
+-        self.assertEqual(len(scan_session.images), 0)
++        self.assertEqual(len(scan_session.images), pages)
+ 
+     def test_expected_size(self):
+-        self.assertTrue("ADF" in self.dev.options['source'].constraint)
+-        self.dev.options['source'].value = "Flatbed"
+-        self.dev.options['mode'].value = "Color"
++        try:
++            self.dev.options['source'].value = "Flatbed"
++            self.dev.options['mode'].value = "Color"
++        except self.module.SaneException:
++            self.skipTest("scanner does not support required option")
+         scan_session = self.dev.scan(multiple=False)
+         scan_size = scan_session.scan.expected_size
+         self.assertTrue(scan_size[0] > 100)
+@@ -146,9 +163,11 @@ class TestSaneScan(unittest.TestCase):
+         scan_session.scan.cancel()
+ 
+     def test_get_progressive_scan(self):
+-        self.assertTrue("ADF" in self.dev.options['source'].constraint)
+-        self.dev.options['source'].value = "Flatbed"
+-        self.dev.options['mode'].value = "Color"
++        try:
++            self.dev.options['source'].value = "Flatbed"
++            self.dev.options['mode'].value = "Color"
++        except self.module.SaneException:
++            self.skipTest("scanner does not support required option")
+         scan_session = self.dev.scan(multiple=False)
+         last_line = 0
+         expected_size = scan_session.scan.expected_size
+diff --git a/tests/tests_rawapi.py b/tests/tests_rawapi.py
+index 69fc6d2..4fef1e2 100644
+--- a/tests/tests_rawapi.py
++++ b/tests/tests_rawapi.py
+@@ -143,7 +143,10 @@ class TestSaneScan(unittest.TestCase):
+         # with my scanner
+         #rawapi.sane_set_io_mode(self.dev_handle, non_blocking=False)
+ 
+-        rawapi.sane_start(self.dev_handle)
++        try:
++            rawapi.sane_start(self.dev_handle)
++        except StopIteration:
++            self.skipTest("cannot scan, no document loaded")
+ 
+         # XXX(Jflesch): get_select_fd() always return SANE_STATUS_UNSUPPORTED
+         # with my scanner
+@@ -159,7 +162,10 @@ class TestSaneScan(unittest.TestCase):
+         rawapi.sane_cancel(self.dev_handle)
+ 
+     def test_cancelled_scan(self):
+-        rawapi.sane_start(self.dev_handle)
++        try:
++            rawapi.sane_start(self.dev_handle)
++        except StopIteration:
++            self.skipTest("cannot scan, no document loaded")
+         buf = rawapi.sane_read(self.dev_handle, 128*1024)
+         self.assertTrue(len(buf) > 0)
+         rawapi.sane_cancel(self.dev_handle)
