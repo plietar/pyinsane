@@ -5,3 +5,4 @@
 0005-Fix-rawapi-tests-and-enable-them.patch
 0006-Test-behavior-of-getting-setting-inactive-options.patch
 0007-Disable-sane_exit-in-rawapi.patch
+0008-Fix-minor-issues-found-by-pyflakes.patch
