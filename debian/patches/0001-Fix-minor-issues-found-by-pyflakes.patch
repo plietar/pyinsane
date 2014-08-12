@@ -11,10 +11,10 @@ Signed-off-by: Ross Vandegrift <ross@kallisti.us>
  1 file changed, 2 insertions(+), 5 deletions(-)
 
 diff --git a/src/rawapi.py b/src/rawapi.py
-index f4fa34d..e267848 100644
+index f96ecda..9d2f87e 100644
 --- a/src/rawapi.py
 +++ b/src/rawapi.py
-@@ -58,9 +58,6 @@ class SaneEnum(object):
+@@ -60,9 +60,6 @@ class SaneEnum(object):
              return self.__value == other
          return self.__value == other.__value
  
@@ -24,7 +24,7 @@ index f4fa34d..e267848 100644
      def __str__(self):
          if not self.__value in self.VALUE_TO_STR:
              txt = "Unknown value (%d)" % (self.__value)
-@@ -422,9 +419,9 @@ class __AuthCallbackWrapper(object):
+@@ -424,9 +421,9 @@ class __AuthCallbackWrapper(object):
          (login, password) = self.__auth_callback(ressource_ptr.value)
          # TODO(Jflesch): Make sure the following works
          ctypes.memmove(login_ptr, ctypes.c_char_p(login),

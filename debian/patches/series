@@ -1,8 +1,1 @@
-0001-Tests-should-create-virtual-device-instead-of-fail.patch
-0002-If-a-scanner-can-t-perform-a-function-skip-the-test.patch
-0003-Fix-rawapi-tests-and-enable-them.patch
-0004-Revert-Fix-rawapi-tests-and-enable-them.patch
-0005-Fix-rawapi-tests-and-enable-them.patch
-0006-Test-behavior-of-getting-setting-inactive-options.patch
-0007-Disable-sane_exit-in-rawapi.patch
-0008-Fix-minor-issues-found-by-pyflakes.patch
+0001-Fix-minor-issues-found-by-pyflakes.patch
