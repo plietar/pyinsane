@@ -12,7 +12,7 @@ X-Python3-Version: >= 3.2
 
 Package: python-pyinsane
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}
+Depends: ${python:Depends}, ${misc:Depends}, libsane
 Description: Python implementation of the Sane API (Python 2)
  Python implementation of the Sane API (using ctypes) and abstration layer.
  .
@@ -29,7 +29,7 @@ Description: Python implementation of the Sane API (Python 2)
 
 Package: python3-pyinsane
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}
+Depends: ${python3:Depends}, ${misc:Depends}, libsane
 Description: Python implementation of the Sane API (Python 3)
  Python implementation of the Sane API (using ctypes) and abstration layer.
  .
