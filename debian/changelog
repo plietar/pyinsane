@@ -1,3 +1,11 @@
+python-pyinsane (1.3.8-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control: add runtime dependency on libsane
+  * debian/rules: do not run tests if DEB_BUILD_OPTIONS contains nocheck
+
+ -- Paul Liétar <paul@lietar.net>  Mon, 18 Aug 2014 23:57:08 +0000
+
 python-pyinsane (1.3.7-1) unstable; urgency=medium
 
   * New upstream release
