@@ -6,6 +6,7 @@ Two variable references are class instance properties.
 python3 removes cmp, but we have __eq__ anyway.
 
 Signed-off-by: Ross Vandegrift <ross@kallisti.us>
+Applied-Upstream: commit:e413d50
 ---
  src/rawapi.py | 7 ++-----
  1 file changed, 2 insertions(+), 5 deletions(-)
